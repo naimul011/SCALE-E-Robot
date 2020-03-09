@@ -1,3 +1,11 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <SoftwareSerial.h>
+
+SoftwareSerial Bluetooth(0, 1);
+char Data;
+void sendData(String transmitData){
+Bluetooth.println(transmitData);}
 int input1 = 3; // Arduino'nun 3. digital pinine bağlanmıştır.
 int input2 = 4; // Arduino'nun 4. digital pinine bağlanmıştır.
 int input3 = 5; // Arduino'nun 5. digital pinine bağlanmıştır.
@@ -47,7 +55,17 @@ void moveBackward(){
 
 void loop() {
    
-  moveForward();
-  delay(3000);
+  
+  if(Bluetooth.available()){
+        Data=Bluetooth.read();
+        if(Data==('1')){
+            moveForward();
+            sendData("Moving forward");
+        }
+        if(Data==('0')){
+            stopMovement();
+            sendData("Moving stopped");
+        }
+    }
 
 }
