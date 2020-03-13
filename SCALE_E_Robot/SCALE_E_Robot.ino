@@ -19,12 +19,13 @@ long duration;
 int distance;
 double len;
 double pi = 3.1415926535;
-
+bool rotateServoLeft = false;
+bool rotateServoRight = false;
 Servo myservo;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
-int pos = 90;    // variable to store the servo position
-int theta;
+int pos = 72;    // variable to store the servo position
+double theta;
 /*
   SoftwareSerial Bluetooth(0, 1);
   char Data;
@@ -105,24 +106,59 @@ void moveBackward() {
 }
 
 void setToInitialPos() {
-  pos = 90;
+  pos = 72;
   myservo.write(pos);              // tell servo to go to position in variable 'pos'
   delay(15);
 }
 
 void turnServoLeft() {
-  pos += 10;
-  if (pos > 180) pos = 180;
-  myservo.write(pos);              // tell servo to go to position in variable 'pos'
-  delay(15);
+  //  pos += 10;
+  //  if (pos > 180) pos = 180;
+  //  myservo.write(pos);              // tell servo to go to position in variable 'pos'
+  //  delay(15);
+  rotateServoLeft = true;
+  for ( ; pos <= 180 && rotateServoLeft ; pos += 1) { // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);
+    if (Bluetooth.available()) {
+      Data = Bluetooth.read();
+
+
+      if (Data == ('o')) {
+        rotateServoLeft = false;
+
+      }
+    }
+  }
+  Serial.print("Angle:  ");
+  Serial.println(pos);
 }
 
 void turnServoRight() {
-  pos -= 10;
+  //  pos -= 10;
+  //
+  //  if (pos < 0) pos = 0;
+  //  myservo.write(pos);              // tell servo to go to position in variable 'pos'
+  //  delay(15);
+  rotateServoRight = true;
+  for ( ; pos >= 0 && rotateServoRight; pos -= 1) { // goes from 180 degrees to 0 degrees
+    
+    myservo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(15);
+    if (Bluetooth.available()) {
+      Data = Bluetooth.read();
 
-  if (pos < 0) pos = 0;
-  myservo.write(pos);              // tell servo to go to position in variable 'pos'
-  delay(15);
+
+      if (Data == ('o')) {
+        rotateServoRight = false;
+
+      }
+    }
+  }
+
+  Serial.print("Angle:  ");
+  Serial.println(pos);
 }
 
 void getInitialDistance() {
@@ -142,30 +178,35 @@ void getInitialDistance() {
   // Prints the distance on the Serial Monitor
   Serial.print("Distance: ");
   Serial.println(distance);
-  
+
+  Serial.print("Pos: ");
+  Serial.println(theta);
+
 }
 
-int mod(int a){
-  if(a<0)
+int mod(int a) {
+  if (a < 0)
     return -a;
 
-   return a;
-  }
-void calculateLength(){
-  theta = mod(theta-pos);
-  theta = theta * 180/pi;
+  return a;
+}
+void calculateLength() {
+  theta = mod(theta - pos);
+  Serial.print("Angle: degree ");
+  Serial.println(theta);
+  theta = theta * 0.0174533;
   len = distance * tan(theta);
 
-  Serial.print("Angle: ");
+  Serial.print("Angle: radian ");
   Serial.println(theta);
-  
+
   Serial.print("Length: ");
   Serial.println(len);
   sendData("The lengh of the object is ");
   sendData(String(len));
   digitalWrite(laser, LOW);
-  
-  }
+
+}
 
 void loop() {// Clears the trigPin
   //  digitalWrite(trigPin, LOW);
@@ -192,56 +233,58 @@ void loop() {// Clears the trigPin
 
   if (Bluetooth.available()) {
     Data = Bluetooth.read();
-    
+
     if (Data == ('1')) {
-      
+
       moveForward();
       sendData("Moving forward");
-      
+
     }
     if (Data == ('2')) {
       digitalWrite(laser, LOW);
       moveBackward();
       sendData("Moving backward");
-      
+
     }
     if (Data == ('3')) {
-      
+
       turnLeft();
       sendData("Turning left");
-      
+
     }
     if (Data == ('4')) {
       turnRight();
       sendData("Turning right");
-      
+
     }
     if (Data == ('5')) {
-      
+
       turnServoLeft();
       sendData("Turning Servo left");
-      
+
     }
     if (Data == ('6')) {
+
       turnServoRight();
       sendData("Turning Servo Right");
-      
+
     }
     if (Data == ('7')) {
-      
+
       getInitialDistance();
-      
+
     }
     if (Data == ('8')) {
       calculateLength();
-      
+
     }
     if (Data == ('0')) {
       stopMovement();
-      
+
     }
-    
-    
+
+
+
 
   }
 
