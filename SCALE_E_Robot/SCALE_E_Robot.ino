@@ -176,11 +176,11 @@ void getInitialDistance() {
   // Calculating the distance
   distance = duration * 0.034 / 2;
   // Prints the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.println(distance);
+  Serial.println("Distance: "+(String)distance);
+  Serial.println();
 
-  Serial.print("Pos: ");
-  Serial.println(theta);
+  Serial.println("Pos: "+(String)theta);
+  Serial.println();
 
 }
 
@@ -192,16 +192,15 @@ int mod(int a) {
 }
 void calculateLength() {
   theta = mod(theta - pos);
-  Serial.print("Angle: degree ");
-  Serial.println(theta);
+  //Serial.print("Angle: degree ");
+  //Serial.println(theta);
   theta = theta * 0.0174533;
   len = distance * tan(theta);
 
-  Serial.print("Angle: radian ");
-  Serial.println(theta);
+  //Serial.print("Angle: radian ");
+  //Serial.println(theta);
 
-  Serial.print("Length: ");
-  Serial.println(len);
+  Serial.println("Length: "+(String)len+" cm");
   sendData("The lengh of the object is ");
   sendData(String(len));
   digitalWrite(laser, LOW);
